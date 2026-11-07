@@ -1,0 +1,800 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PinkFlow | Kanban Board</title>
+
+<style>
+:root {
+    --pink: #ec4899;
+    --pink-dark: #db2777;
+    --pink-light: #fce7f3;
+    --bg: #fff7fb;
+    --text: #292033;
+    --muted: #8b8291;
+    --border: #f1e5ed;
+    --white: #ffffff;
+    --shadow: 0 4px 18px rgba(190, 24, 93, .06);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+button, input, textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+header {
+    background: white;
+    padding: 20px 5%;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    width: 43px;
+    height: 43px;
+    border-radius: 13px;
+    background: var(--pink);
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: 23px;
+}
+
+.logo h1 {
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.logo span {
+    color: var(--pink);
+}
+
+.logo p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+}
+
+.add-btn {
+    background: var(--pink);
+    color: white;
+    border: none;
+    padding: 12px 19px;
+    border-radius: 11px;
+    font-weight: 700;
+    transition: .2s;
+}
+
+.add-btn:hover {
+    background: var(--pink-dark);
+    transform: translateY(-2px);
+}
+
+main {
+    max-width: 1450px;
+    margin: auto;
+    padding: 35px 5%;
+}
+
+.welcome {
+    margin-bottom: 28px;
+}
+
+.welcome h2 {
+    font-size: 27px;
+    margin-bottom: 7px;
+}
+
+.welcome p {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+
+.stat {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 15px 20px;
+    min-width: 135px;
+    box-shadow: var(--shadow);
+}
+
+.stat p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 5px;
+}
+
+.stat strong {
+    font-size: 23px;
+}
+
+.stat strong.pink {
+    color: var(--pink);
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+.column {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 17px;
+    min-height: 370px;
+    box-shadow: var(--shadow);
+    transition: .2s;
+}
+
+.column.drag-over {
+    background: var(--pink-light);
+    border: 2px dashed var(--pink);
+}
+
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.column-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.todo .dot { background: #f59e0b; }
+.progress .dot { background: #ec4899; }
+.done .dot { background: #10b981; }
+
+.counter {
+    background: var(--pink-light);
+    color: var(--pink-dark);
+    padding: 4px 9px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 280px;
+}
+
+.task-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 15px;
+    cursor: grab;
+    box-shadow: 0 3px 10px rgba(0,0,0,.035);
+    transition: .2s;
+}
+
+.task-card:hover {
+    border-color: #f9a8d4;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.task-card.dragging {
+    opacity: .4;
+}
+
+.task-card h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    overflow-wrap: anywhere;
+}
+
+.task-card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #f7edf3;
+}
+
+.task-date {
+    font-size: 10px;
+    color: #aaa;
+}
+
+.delete-btn {
+    border: none;
+    background: #fff1f2;
+    color: #e11d48;
+    width: 29px;
+    height: 29px;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: .2s;
+}
+
+.delete-btn:hover {
+    background: #e11d48;
+    color: white;
+}
+
+.empty {
+    color: #c0b5bf;
+    font-size: 12px;
+    text-align: center;
+    padding: 45px 10px;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+}
+
+.add-small {
+    background: transparent;
+    border: 1px dashed #f0b5d1;
+    color: var(--pink-dark);
+    width: 100%;
+    padding: 10px;
+    border-radius: 9px;
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.add-small:hover {
+    background: var(--pink-light);
+}
+
+/* Modal */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(35, 20, 32, .45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: white;
+    width: 100%;
+    max-width: 440px;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 15px 50px rgba(0,0,0,.15);
+    animation: appear .2s ease;
+}
+
+@keyframes appear {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 23px;
+}
+
+.modal-header h2 {
+    font-size: 19px;
+}
+
+.close-btn {
+    background: #fce7f3;
+    color: var(--pink-dark);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    font-size: 20px;
+}
+
+.form-group {
+    margin-bottom: 17px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 650;
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: #fffafd;
+    border-radius: 10px;
+    padding: 12px;
+    outline: none;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: var(--pink);
+    box-shadow: 0 0 0 3px rgba(236,72,153,.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 23px;
+}
+
+.cancel-btn, .save-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    border: none;
+}
+
+.cancel-btn {
+    background: #f5f0f4;
+    color: #777;
+}
+
+.save-btn {
+    background: var(--pink);
+    color: white;
+}
+
+.save-btn:hover {
+    background: var(--pink-dark);
+}
+
+footer {
+    text-align: center;
+    color: #b5aab4;
+    font-size: 11px;
+    padding: 30px 15px;
+}
+
+@media(max-width: 850px) {
+    .board {
+        grid-template-columns: 1fr;
+    }
+
+    .column {
+        min-height: 220px;
+    }
+
+    .cards {
+        min-height: 100px;
+    }
+
+    .welcome h2 {
+        font-size: 23px;
+    }
+}
+
+@media(max-width: 480px) {
+    header {
+        padding: 15px;
+    }
+
+    main {
+        padding: 25px 15px;
+    }
+
+    .add-btn {
+        width: 100%;
+    }
+
+    .stat {
+        flex: 1;
+        min-width: 95px;
+        padding: 12px;
+    }
+
+    .stat strong {
+        font-size: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+        <div class="logo-icon">✿</div>
+        <div>
+            <h1>Pink<span>Flow</span></h1>
+            <p>Organize suas ideias, conquiste seus objetivos.</p>
+        </div>
+    </div>
+
+    <button class="add-btn" onclick="openModal()">
+        + Adicionar Nova Tarefa
+    </button>
+</header>
+
+<main>
+    <section class="welcome">
+        <h2>Meu painel de tarefas ✨</h2>
+        <p>Planeje, acompanhe e conclua suas atividades.</p>
+    </section>
+
+    <section class="stats">
+        <div class="stat">
+            <p>Total de tarefas</p>
+            <strong id="total">0</strong>
+        </div>
+        <div class="stat">
+            <p>Em andamento</p>
+            <strong class="pink" id="active">0</strong>
+        </div>
+        <div class="stat">
+            <p>Concluídas</p>
+            <strong id="completed">0</strong>
+        </div>
+    </section>
+
+    <section class="board">
+
+        <div class="column todo" data-status="todo">
+            <div class="column-header">
+                <div class="column-title">
+                    <span class="dot"></span>
+                    A Fazer
+                </div>
+                <span class="counter" id="count-todo">0</span>
+            </div>
+            <div class="cards" id="todo"></div>
+            <button class="add-small" onclick="openModal('todo')">
+                + Adicionar tarefa
+            </button>
+        </div>
+
+        <div class="column progress" data-status="progress">
+            <div class="column-header">
+                <div class="column-title">
+                    <span class="dot"></span>
+                    Em Andamento
+                </div>
+                <span class="counter" id="count-progress">0</span>
+            </div>
+            <div class="cards" id="progress"></div>
+            <button class="add-small" onclick="openModal('progress')">
+                + Adicionar tarefa
+            </button>
+        </div>
+
+        <div class="column done" data-status="done">
+            <div class="column-header">
+                <div class="column-title">
+                    <span class="dot"></span>
+                    Concluído
+                </div>
+                <span class="counter" id="count-done">0</span>
+            </div>
+            <div class="cards" id="done"></div>
+            <button class="add-small" onclick="openModal('done')">
+                + Adicionar tarefa
+            </button>
+        </div>
+
+    </section>
+</main>
+
+<footer>
+    PinkFlow © 2026 · Organização com leveza e produtividade.
+</footer>
+
+<!-- Modal de nova tarefa -->
+
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Nova tarefa ✿</h2>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+
+        <form id="taskForm">
+            <div class="form-group">
+                <label for="title">Título da tarefa</label>
+                <input
+                    type="text"
+                    id="title"
+                    placeholder="Ex: Finalizar projeto"
+                    maxlength="100"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="description">Descrição</label>
+                <textarea
+                    id="description"
+                    placeholder="Descreva os detalhes da atividade..."
+                    maxlength="1000"
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Coluna</label>
+                <select id="status">
+                    <option value="todo">A Fazer</option>
+                    <option value="progress">Em Andamento</option>
+                    <option value="done">Concluído</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn"
+                    onclick="closeModal()">Cancelar</button>
+                <button type="submit" class="save-btn">
+                    Salvar tarefa
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+const STORAGE_KEY = "pinkflow_tasks";
+
+let tasks = [];
+
+try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    tasks = Array.isArray(saved) ? saved.filter(task =>
+        task &&
+        typeof task.id === "string" &&
+        typeof task.title === "string" &&
+        ["todo", "progress", "done"].includes(task.status)
+    ) : [];
+} catch {
+    tasks = [];
+}
+
+let draggedId = null;
+
+const columns = ["todo", "progress", "done"];
+
+function saveTasks() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+function render() {
+    columns.forEach(status => {
+        const container = document.getElementById(status);
+        const filtered = tasks.filter(t => t.status === status);
+
+        container.innerHTML = "";
+
+        if (filtered.length === 0) {
+            container.innerHTML =
+                '<div class="empty">Nenhuma tarefa por aqui ✿</div>';
+        }
+
+        filtered.forEach(task => {
+            const card = document.createElement("article");
+            card.className = "task-card";
+            card.draggable = true;
+
+            const heading = document.createElement("h3");
+            heading.textContent = task.title;
+
+            const description = document.createElement("p");
+            description.textContent = task.description || "Sem descrição.";
+
+            const footer = document.createElement("div");
+            footer.className = "card-footer";
+
+            const date = document.createElement("span");
+            date.className = "task-date";
+            date.textContent = task.date || "";
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-btn";
+            deleteBtn.type = "button";
+            deleteBtn.title = "Excluir tarefa";
+            deleteBtn.setAttribute("aria-label", "Excluir tarefa");
+            deleteBtn.textContent = "⌫";
+
+            deleteBtn.addEventListener("click", () => {
+                deleteTask(task.id);
+            });
+
+            footer.append(date, deleteBtn);
+            card.append(heading, description, footer);
+
+            card.addEventListener("dragstart", () => {
+                draggedId = task.id;
+                card.classList.add("dragging");
+            });
+
+            card.addEventListener("dragend", () => {
+                draggedId = null;
+                card.classList.remove("dragging");
+                document.querySelectorAll(".column").forEach(col =>
+                    col.classList.remove("drag-over")
+                );
+            });
+
+            container.appendChild(card);
+        });
+
+        document.getElementById("count-" + status).textContent =
+            filtered.length;
+    });
+
+    document.getElementById("total").textContent = tasks.length;
+
+    document.getElementById("active").textContent =
+        tasks.filter(t => t.status === "progress").length;
+
+    document.getElementById("completed").textContent =
+        tasks.filter(t => t.status === "done").length;
+}
+
+function openModal(status = "todo") {
+    document.getElementById("status").value = status;
+    document.getElementById("modal").classList.add("active");
+    document.getElementById("title").focus();
+}
+
+function closeModal() {
+    document.getElementById("modal").classList.remove("active");
+    document.getElementById("taskForm").reset();
+}
+
+document.getElementById("taskForm").addEventListener("submit", e => {
+    e.preventDefault();
+
+    const title = document.getElementById("title").value.trim();
+    const description =
+        document.getElementById("description").value.trim();
+    const status = document.getElementById("status").value;
+
+    if (!title) return;
+
+    tasks.push({
+        id: crypto.randomUUID(),
+        title,
+        description,
+        status,
+        date: new Date().toLocaleDateString("pt-BR")
+    });
+
+    saveTasks();
+    render();
+    closeModal();
+});
+
+function deleteTask(id) {
+    if (!confirm("Deseja realmente excluir esta tarefa?")) return;
+
+    tasks = tasks.filter(task => task.id !== id);
+    saveTasks();
+    render();
+}
+
+// Drag and Drop nativo
+
+document.querySelectorAll(".column").forEach(column => {
+    column.addEventListener("dragover", e => {
+        e.preventDefault();
+        column.classList.add("drag-over");
+    });
+
+    column.addEventListener("dragleave", e => {
+        if (!column.contains(e.relatedTarget)) {
+            column.classList.remove("drag-over");
+        }
+    });
+
+    column.addEventListener("drop", e => {
+        e.preventDefault();
+        column.classList.remove("drag-over");
+
+        if (!draggedId) return;
+
+        const newStatus = column.dataset.status;
+        const task = tasks.find(t => t.id === draggedId);
+
+        if (task) {
+            task.status = newStatus;
+            saveTasks();
+            render();
+        }
+
+        draggedId = null;
+    });
+});
+
+// Fechar modal clicando fora dele
+
+document.getElementById("modal").addEventListener("click", e => {
+    if (e.target.id === "modal") closeModal();
+});
+
+// Fechar modal com ESC
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeModal();
+});
+
+// Inicialização
+
+render();
+</script>
+
+</body>
+</html>
